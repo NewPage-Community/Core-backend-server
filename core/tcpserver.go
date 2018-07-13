@@ -19,12 +19,12 @@ func StartTCPServer() {
 	CheckError(err)
 
 	if err != nil {
-		log.Println("error listening:", err.Error())
+		log.Println("无法绑定监听:", err.Error())
 		os.Exit(1)
 	}
 	defer listener.Close()
 
-	log.Printf("running ...\n")
+	log.Printf("欢迎使用 NCS \n 后台服务正在运行 ...\n")
 
 	for {
 		conn, err := listener.Accept()
@@ -106,7 +106,7 @@ func GetRightMsg(msg string) ([8]string, int) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Error:", err)
+			log.Println("错误:", err)
 		}
 	}()
 

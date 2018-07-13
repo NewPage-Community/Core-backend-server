@@ -40,7 +40,7 @@ func InitSetting() bool {
 func ReloadSetting() {
 	setting = make(map[string]string)
 	if ok := InitSetting(); ok {
-		log.Println("Reload Config!")
+		log.Println("重载设置!")
 	}
 }
 

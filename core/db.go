@@ -20,7 +20,7 @@ func ConnectDB() bool {
 
 	err = dbi.Ping()
 	if err != nil {
-		log.Println("error mysql:", err)
+		log.Println("mysql错误:", err)
 		return false
 	}
 

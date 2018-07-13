@@ -8,7 +8,7 @@ import (
 //CheckError err - false
 func CheckError(err error) bool {
 	if err != nil {
-		log.Printf("Fatal error: %s", err.Error())
+		log.Printf("错误: %s", err.Error())
 		return false
 	}
 	return true
