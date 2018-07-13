@@ -1,0 +1,6 @@
+[Config]
+sqladdr = 127.0.0.1:3306
+sqluser = test
+sqlpasswd = test
+sqlname = test
+listenbind = 127.0.0.1:23000
