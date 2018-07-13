@@ -26,7 +26,7 @@ func ConnectDB() bool {
 
 	db = dbi
 
-	JoinQuery, err = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?, ?)")
+	JoinQuery, err = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?)")
 
 	return true
 }
