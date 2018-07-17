@@ -170,7 +170,7 @@ func AllChatHandle(data EventData, serNum int) {
 
 //StatsHandle ...
 func StatsHandle(data EventData, serNum int) {
-	_, err := StatsQuery.Exec(data.UserStats)
+	_, err := StatsQuery.Exec(data.UserStats.UID, data.UserStats.SessionID, data.UserStats.TodayOnline, data.UserStats.TotalOnline, data.UserStats.SpecOnline, data.UserStats.PlayOnline, data.UserStats.UserName)
 	if !CheckError(err) {
 		log.Println("数据", data)
 	}
