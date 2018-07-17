@@ -14,6 +14,9 @@ var db *sql.DB
 //JoinQuery ...
 var JoinQuery *sql.Stmt
 
+//StatsQuery ...
+var StatsQuery *sql.Stmt
+
 //ConnectDB ...
 func ConnectDB() bool {
 	dbi, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4", GetConfig("sqluser"), GetConfig("sqlpasswd"), GetConfig("sqladdr"), GetConfig("sqlname")))
@@ -26,7 +29,8 @@ func ConnectDB() bool {
 
 	db = dbi
 
-	JoinQuery, err = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?)")
+	JoinQuery, _ = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?)")
+	StatsQuery, _ = db.Prepare("CALL user_stats(?, ?, ?, ?, ?, ?, ?)")
 
 	return true
 }
@@ -35,4 +39,5 @@ func ConnectDB() bool {
 func CloseDB() {
 	db.Close()
 	JoinQuery.Close()
+	StatsQuery.Close()
 }

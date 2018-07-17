@@ -47,12 +47,40 @@ type Chat struct {
 	Msg         string `json:"Msg"`
 }
 
+//KillStats ...
+type KillStats struct {
+	Attacker int    `json:"Attacker"`
+	Assister int    `json:"Assister"`
+	Victim   int    `json:"Victim"`
+	Weapon   string `json:"Weapon"`
+	Headshot bool   `json:"Headshot"`
+}
+
+//PlayerDisconnection ...
+type PlayerDisconnection struct {
+	UID int `json:"UID"`
+}
+
+//UserStats ...
+type UserStats struct {
+	UID         int    `json:"UID"`
+	SessionID   int    `json:"SessionID"`
+	TodayOnline int    `json:"TodayOnline"`
+	TotalOnline int    `json:"TotalOnline"`
+	SpecOnline  int    `json:"SpecOnline"`
+	PlayOnline  int    `json:"PlayOnline"`
+	UserName    string `json:"UserName"`
+}
+
 //EventData ...
 type EventData struct {
-	Event            string           `json:"Event"`
-	PlayerConnection PlayerConnection `json:"PlayerConnection"`
-	AllServersChat   Chat             `json:"AllServersChat"`
-	SQLSave          string           `json:"SQLSave"`
+	Event               string              `json:"Event"`
+	PlayerConnection    PlayerConnection    `json:"PlayerConnection"`
+	AllServersChat      Chat                `json:"AllServersChat"`
+	KillStats           KillStats           `json:"KillStats"`
+	PlayerDisconnection PlayerDisconnection `json:"PlayerDisconnection"`
+	UserStats           UserStats           `json:"UserStats"`
+	SQLSave             string              `json:"SQLSave"`
 }
 
 //EventHandle ...
@@ -74,6 +102,15 @@ func EventHandle(msg string, serNum int) {
 	case data.Event == "SQLSave":
 		SQLSaveHandle(data, serNum)
 
+	//case data.Event == "KillStats":
+	//SQLSaveHandle(data, serNum)
+
+	//case data.Event == "PlayerDisconnection":
+	//SQLSaveHandle(data, serNum)
+
+	case data.Event == "UserStats":
+		StatsHandle(data, serNum)
+
 	case data.Event == "RELOADSETTING":
 		ReloadSetting()
 	}
@@ -83,7 +120,7 @@ func EventHandle(msg string, serNum int) {
 func SQLSaveHandle(data EventData, serNum int) {
 	_, err := db.Exec(data.SQLSave)
 	if !CheckError(err) {
-		log.Println(data)
+		log.Println("数据", data)
 	}
 }
 
@@ -95,7 +132,7 @@ func PlayerConnHandle(data EventData, serNum int) {
 	row, err := JoinQuery.Query(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP, playerinfo.Map, playerinfo.JoinTime, playerinfo.TodayDate)
 
 	if !CheckError(err) {
-		log.Println(data)
+		log.Println("数据", data)
 		return
 	}
 
@@ -128,5 +165,13 @@ func AllChatHandle(data EventData, serNum int) {
 
 	for k := range sersChan {
 		sersChan[k] <- string(json)
+	}
+}
+
+//StatsHandle ...
+func StatsHandle(data EventData, serNum int) {
+	_, err := StatsQuery.Exec(data.UserStats)
+	if !CheckError(err) {
+		log.Println("数据", data)
 	}
 }

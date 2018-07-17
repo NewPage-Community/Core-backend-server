@@ -106,7 +106,7 @@ func GetRightMsg(msg string) ([8]string, int) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("错误:", err)
+			log.Println("Json分割错误:", err)
 		}
 	}()
 
