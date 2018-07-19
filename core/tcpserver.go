@@ -67,8 +67,6 @@ func handleClient(conn net.Conn, num int) {
 				return
 			}
 
-			//log.Println(string(data[0:c]))
-
 			res, size := GetRightMsg(string(data[0:c]))
 			if size == -1 {
 				log.Println(string(data[0:c]))
@@ -101,25 +99,29 @@ func handleClient(conn net.Conn, num int) {
 
 //GetRightMsg ...
 func GetRightMsg(msg string) ([8]string, int) {
-	var res [8]string
+	var json [8]string
 	i := -1
-
-	defer func() {
-		if err := recover(); err != nil {
-			log.Println("Json分割错误:", err)
-		}
-	}()
 
 	index := UnicodeIndex(msg, "}{")
 	c := utf8.RuneCountInString(msg)
 
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("Json分割错误:", err)
+			log.Println("未处理数据:", msg)
+			log.Println("处理数据:", json)
+			log.Println("查找:", index)
+			log.Println("长度:", c)
+		}
+	}()
+
 	if index == -1 {
-		res[0] = msg
-		return res, 1
+		json[0] = msg
+		return json, 1
 	}
 
 	for i = 0; i < 8 && index != -1; i++ {
-		res[i] = SubString(msg, 0, index+1)
+		json[i] = SubString(msg, 0, index+1)
 		if c <= 0 {
 			break
 		}
@@ -128,7 +130,7 @@ func GetRightMsg(msg string) ([8]string, int) {
 		index = UnicodeIndex(msg, "}{")
 	}
 
-	res[i] = msg
+	json[i] = msg
 
-	return res, i + 1
+	return json, i + 1
 }
