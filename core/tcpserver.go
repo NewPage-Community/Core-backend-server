@@ -98,8 +98,8 @@ func handleClient(conn net.Conn, num int) {
 }
 
 //GetRightMsg ...
-func GetRightMsg(msg string) ([8]string, int) {
-	var json [8]string
+func GetRightMsg(msg string) ([32]string, int) {
+	var json [32]string
 	i := -1
 
 	index := UnicodeIndex(msg, "}{")
@@ -120,7 +120,7 @@ func GetRightMsg(msg string) ([8]string, int) {
 		return json, 1
 	}
 
-	for i = 0; i < 8 && index != -1; i++ {
+	for i = 0; i < 32 && index != -1; i++ {
 		json[i] = SubString(msg, 0, index+1)
 		if c <= 0 {
 			break
