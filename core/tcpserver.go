@@ -74,7 +74,7 @@ func handleClient(conn net.Conn, num int) {
 			}
 
 			for i := 0; i < size; i++ {
-				go EventHandle(res[i], num)
+				go EventHandle(res[i], num, string(data[0:c]))
 			}
 		}
 	}()

@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-//PlayerInfo ...
+//PlayerInfo (send)
 type PlayerInfo struct {
 	UID          int
 	Username     string
@@ -25,9 +25,14 @@ type PlayerInfo struct {
 	ConnectTimes int
 	Vitality     int
 	TrackingID   int
+	IsBanned     bool
+	BanType      int
+	BanETime     int64
+	BanReason    string
+	BanAdminName string
 }
 
-//PlayerConnection ...
+//PlayerConnection (rec)
 type PlayerConnection struct {
 	SteamID     string `json:"SteamID"`
 	CIndex      int    `json:"CIndex"`
@@ -39,7 +44,7 @@ type PlayerConnection struct {
 	ServerModID int    `json:"ServerModID"`
 }
 
-//Chat ...
+//Chat (rec)(sent)
 type Chat struct {
 	ServerID    int    `json:"ServerID"`
 	ServerModID int    `json:"ServerModID"`
@@ -47,8 +52,8 @@ type Chat struct {
 	Msg         string `json:"Msg"`
 }
 
-//KillStats ...
-type KillStats struct {
+//Rank (rec)
+type Rank struct {
 	Attacker int    `json:"Attacker"`
 	Assister int    `json:"Assister"`
 	Victim   int    `json:"Victim"`
@@ -56,12 +61,7 @@ type KillStats struct {
 	Headshot bool   `json:"Headshot"`
 }
 
-//PlayerDisconnection ...
-type PlayerDisconnection struct {
-	UID int `json:"UID"`
-}
-
-//UserStats ...
+//UserStats (rec)
 type UserStats struct {
 	UID         int    `json:"UID"`
 	SessionID   int    `json:"SessionID"`
@@ -72,23 +72,49 @@ type UserStats struct {
 	UserName    string `json:"UserName"`
 }
 
-//EventData ...
+//BanInfo (rec)
+type BanInfo struct {
+	UID         int    `json:"UID"`
+	SteamID     string `json:"SteamID"`
+	IP          string `json:"IP"`
+	NikeName    string `json:"NikeName"`
+	Length      int    `json:"Length"`
+	BanType     int    `json:"BanType"`
+	ServerID    int    `json:"ServerID"`
+	ServerModID int    `json:"ServerModID"`
+	AdminID     int    `json:"AdminID"`
+	AdminName   string `json:"AdminName"`
+	Reason      string `json:"Reason"`
+}
+
+//BanClient (sent)
+type BanClient struct {
+	SteamID   string `json:"SteamID"`
+	Length    int    `json:"Length"`
+	BanETime  int64  `json:"BanETime"`
+	BanType   int    `json:"BanType"`
+	AdminID   int    `json:"AdminID"`
+	AdminName string `json:"AdminName"`
+	Reason    string `json:"Reason"`
+}
+
+//EventData (rec)
 type EventData struct {
-	Event               string              `json:"Event"`
-	PlayerConnection    PlayerConnection    `json:"PlayerConnection"`
-	AllServersChat      Chat                `json:"AllServersChat"`
-	KillStats           KillStats           `json:"KillStats"`
-	PlayerDisconnection PlayerDisconnection `json:"PlayerDisconnection"`
-	UserStats           UserStats           `json:"UserStats"`
-	SQLSave             string              `json:"SQLSave"`
+	Event            string           `json:"Event"`
+	PlayerConnection PlayerConnection `json:"PlayerConnection"`
+	AllServersChat   Chat             `json:"AllServersChat"`
+	Rank             Rank             `json:"Rank"`
+	UserStats        UserStats        `json:"UserStats"`
+	SQLSave          string           `json:"SQLSave"`
+	BanInfo          BanInfo          `json:"BanInfo"`
 }
 
 //EventHandle ...
-func EventHandle(msg string, serNum int) {
+func EventHandle(msg string, serNum int, rawmsg string) {
 	data := EventData{}
 	err := json.Unmarshal([]byte(msg), &data)
 	if err != nil {
-		log.Println("Json解析错误: ", err, msg)
+		log.Println("Json解析错误: ", err, "\nJson文本", msg, "\n原文本", rawmsg)
 		return
 	}
 
@@ -102,11 +128,11 @@ func EventHandle(msg string, serNum int) {
 	case data.Event == "SQLSave":
 		SQLSaveHandle(data, serNum)
 
-	//case data.Event == "KillStats":
+	//case data.Event == "Rank":
 	//SQLSaveHandle(data, serNum)
 
-	//case data.Event == "PlayerDisconnection":
-	//SQLSaveHandle(data, serNum)
+	case data.Event == "AddBan":
+		AddBan(data, serNum)
 
 	case data.Event == "UserStats":
 		StatsHandle(data, serNum)
@@ -139,6 +165,8 @@ func PlayerConnHandle(data EventData, serNum int) {
 	row.Next()
 	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID)
 	row.Close()
+
+	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP)
 
 	buff := struct {
 		Event      string     `json:"Event"`
