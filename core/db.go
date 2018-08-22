@@ -34,7 +34,7 @@ func ConnectDB() bool {
 
 	JoinQuery, _ = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?)")
 	StatsQuery, _ = db.Prepare("CALL user_stats(?, ?, ?, ?, ?, ?, ?)")
-	CheckBanQuery, _ = db.Prepare("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM `np_bans` WHERE `steamid` = '?' AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC;")
+	CheckBanQuery, _ = db.Prepare("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM np_bans WHERE `steamid` = '?' AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC;")
 
 	return true
 }

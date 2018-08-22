@@ -31,7 +31,7 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 // AddBan ...
 func AddBan(data EventData, serNum int) {
 	if data.BanInfo.UID == -1 {
-		row, err := db.Query("SELECT `uid`, `username` FROM `np_users` WHERE `steamid` = '?';", data.BanInfo.SteamID)
+		row, err := db.Query("SELECT `uid`, `username` FROM np_users WHERE `steamid` = '?';", data.BanInfo.SteamID)
 		if CheckError(err) {
 			row.Next()
 			row.Scan(&data.BanInfo.UID, &data.BanInfo.NikeName)
@@ -46,7 +46,7 @@ func AddBan(data EventData, serNum int) {
 		ETime = time.Now().Unix() + int64(data.BanInfo.Length)
 	}
 
-	_, err := db.Exec("INSERT INTO np_bans VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', -1);", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
+	_, err := db.Exec("INSERT INTO np_bans VALUES (DEFAULT, ?, '?', '?', '?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '', -1);", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
 
 	if !CheckError(err) {
 		return
