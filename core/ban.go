@@ -8,9 +8,7 @@ import (
 
 // CheckBan ...
 func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, int64, string, string) {
-	row, err := CheckBanQuery.Query(steamid, time.Now().Unix())
-
-	defer row.Close()
+	row, err := db.Query("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM `np_bans` WHERE `steamid` = '?' AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC", steamid, time.Now().Unix())
 
 	if !CheckError(err) {
 		log.Println("CheckBan")
@@ -26,9 +24,12 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 
 		if (banType == 1 && mid == modid) || (banType == 2 && sid == serverid) || banType == 0 {
 			db.Exec("INSERT INTO `np_blocks` VALUES (DEFAULT, ?, ?, ?)", bid, ip, time.Now().Unix())
+			row.Close()
 			return true, banType, ends, reason, adminname
 		}
 	}
+
+	row.Close()
 	return false, 0, 0, "", ""
 }
 
@@ -37,11 +38,10 @@ func AddBan(data EventData, serNum int) {
 	if data.BanInfo.UID == -1 {
 		row, err := db.Query("SELECT `uid`, `username` FROM `np_users` WHERE `steamid` = '?'", data.BanInfo.SteamID)
 
-		defer row.Close()
-
 		if CheckError(err) {
 			row.Next()
 			row.Scan(&data.BanInfo.UID, &data.BanInfo.NikeName)
+			row.Close()
 		}
 	}
 
