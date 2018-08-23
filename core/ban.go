@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 )
 
@@ -9,7 +10,10 @@ import (
 func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, int64, string, string) {
 	row, err := CheckBanQuery.Query(steamid, time.Now().Unix())
 
+	defer row.Close()
+
 	if !CheckError(err) {
+		log.Println("CheckBan")
 		return false, 0, 0, "", ""
 	}
 
@@ -21,7 +25,7 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 		row.Scan(&bid, &banType, &sid, &mid, &ends, &adminname, &reason)
 
 		if (banType == 1 && mid == modid) || (banType == 2 && sid == serverid) || banType == 0 {
-			db.Exec("INSERT INTO np_blocks VALUES (DEFAULT, ?, ?, ?)", bid, ip, time.Now().Unix())
+			db.Exec("INSERT INTO `np_blocks` VALUES (DEFAULT, ?, ?, ?)", bid, ip, time.Now().Unix())
 			return true, banType, ends, reason, adminname
 		}
 	}
@@ -31,7 +35,10 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 // AddBan ...
 func AddBan(data EventData, serNum int) {
 	if data.BanInfo.UID == -1 {
-		row, err := db.Query("SELECT `uid`, `username` FROM np_users WHERE `steamid` = '?'", data.BanInfo.SteamID)
+		row, err := db.Query("SELECT `uid`, `username` FROM `np_users` WHERE `steamid` = '?'", data.BanInfo.SteamID)
+
+		defer row.Close()
+
 		if CheckError(err) {
 			row.Next()
 			row.Scan(&data.BanInfo.UID, &data.BanInfo.NikeName)
@@ -46,7 +53,7 @@ func AddBan(data EventData, serNum int) {
 		ETime = time.Now().Unix() + int64(data.BanInfo.Length)
 	}
 
-	_, err := db.Exec("INSERT INTO np_bans VALUES (DEFAULT, ?, '?', '?', '?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '', -1)", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
+	_, err := db.Exec("INSERT INTO `np_bans` VALUES (DEFAULT, ?, '?', '?', '?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '', -1)", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
 
 	if !CheckError(err) {
 		return

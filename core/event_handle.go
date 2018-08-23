@@ -30,6 +30,9 @@ type PlayerInfo struct {
 	BanETime     int64
 	BanReason    string
 	BanAdminName string
+	Money        int
+	SignTimes    int
+	SignDate     int
 }
 
 //PlayerConnection (rec)
@@ -157,14 +160,15 @@ func PlayerConnHandle(data EventData, serNum int) {
 
 	row, err := JoinQuery.Query(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP, playerinfo.Map, playerinfo.JoinTime, playerinfo.TodayDate)
 
+	defer row.Close()
+
 	if !CheckError(err) {
 		log.Println("数据", data)
 		return
 	}
 
 	row.Next()
-	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID)
-	row.Close()
+	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate)
 
 	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP)
 
