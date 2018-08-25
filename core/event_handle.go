@@ -33,6 +33,8 @@ type PlayerInfo struct {
 	Money        int
 	SignTimes    int
 	SignDate     int
+	VIPPoint     int
+	VIPExpired   int
 }
 
 //PlayerConnection (rec)
@@ -166,7 +168,7 @@ func PlayerConnHandle(data EventData, serNum int) {
 	}
 
 	row.Next()
-	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate)
+	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate, &player.VIPPoint, &player.VIPExpired)
 	row.Close()
 
 	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP)
