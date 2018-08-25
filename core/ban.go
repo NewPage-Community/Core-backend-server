@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 )
 
@@ -11,7 +10,6 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 	row, err := db.Query("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM `np_bans` WHERE `steamid` = ? AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC", steamid, time.Now().Unix())
 
 	if !CheckError(err) {
-		log.Println("CheckBan")
 		return false, 0, 0, "", ""
 	}
 
