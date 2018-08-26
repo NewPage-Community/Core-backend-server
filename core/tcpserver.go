@@ -68,8 +68,6 @@ func handleClient(conn net.Conn, num int) {
 				return
 			}
 
-			data = EscapeCtrl(data)
-
 			res, size := GetRightMsg(string(data[0:c]))
 			if size == -1 {
 				log.Println(string(data[0:c]))
@@ -77,7 +75,7 @@ func handleClient(conn net.Conn, num int) {
 			}
 
 			for i := 0; i < size; i++ {
-				go EventHandle(res[i], num, string(data[0:c]))
+				go EventHandle(string(EscapeCtrl([]byte(res[i]))), num, string(data[0:c]))
 			}
 		}
 	}()

@@ -51,7 +51,7 @@ func AddBan(data EventData, serNum int) {
 		ETime = time.Now().Unix() + int64(data.BanInfo.Length)
 	}
 
-	_, err := db.Exec("INSERT INTO `np_bans` VALUES (DEFAULT, ?, '?', '?', '?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '', -1)", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
+	_, err := db.Exec("INSERT INTO `np_bans` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', -1)", data.BanInfo.UID, data.BanInfo.SteamID, data.BanInfo.IP, data.BanInfo.NikeName, time.Now().Unix(), data.BanInfo.Length, ETime, data.BanInfo.BanType, data.BanInfo.ServerID, data.BanInfo.ServerModID, data.BanInfo.AdminID, data.BanInfo.AdminName, data.BanInfo.Reason)
 
 	if !CheckError(err) {
 		return
