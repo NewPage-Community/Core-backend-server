@@ -35,6 +35,7 @@ type PlayerInfo struct {
 	SignDate     int
 	VIPPoint     int
 	VIPExpired   int
+	VIPReward    int
 }
 
 //PlayerConnection (rec)
@@ -75,6 +76,7 @@ type UserStats struct {
 	SpecOnline  int    `json:"SpecOnline"`
 	PlayOnline  int    `json:"PlayOnline"`
 	UserName    string `json:"UserName"`
+	VIPReward   int    `json:"VIPReward"`
 }
 
 //BanInfo (rec)
@@ -168,7 +170,7 @@ func PlayerConnHandle(data EventData, serNum int) {
 	}
 
 	row.Next()
-	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate, &player.VIPPoint, &player.VIPExpired)
+	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate, &player.VIPPoint, &player.VIPExpired, &player.VIPReward)
 	row.Close()
 
 	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP)
@@ -203,7 +205,7 @@ func AllChatHandle(data EventData, serNum int) {
 
 //StatsHandle ...
 func StatsHandle(data EventData, serNum int) {
-	_, err := StatsQuery.Exec(data.UserStats.UID, data.UserStats.SessionID, data.UserStats.TodayOnline, data.UserStats.TotalOnline, data.UserStats.SpecOnline, data.UserStats.PlayOnline, data.UserStats.UserName)
+	_, err := StatsQuery.Exec(data.UserStats.UID, data.UserStats.SessionID, data.UserStats.TodayOnline, data.UserStats.TotalOnline, data.UserStats.SpecOnline, data.UserStats.PlayOnline, data.UserStats.UserName, data.UserStats.VIPReward)
 	if !CheckError(err) {
 		log.Println("数据", data)
 	}
