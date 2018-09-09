@@ -29,8 +29,8 @@ func ConnectDB() bool {
 
 	db = dbi
 
-	JoinQuery, _ = db.Prepare("CALL user_join(?, ?, ?, ?, ?, ?, ?)")
-	StatsQuery, _ = db.Prepare("CALL user_stats(?, ?, ?, ?, ?, ?, ?, ?)")
+	JoinQuery, _ = db.Prepare("CALL user_join(?, ?, ?, ?)")
+	StatsQuery, _ = db.Prepare("CALL user_stats(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
 	return true
 }

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"encoding/hex"
 	"log"
 	"net"
 	"os"
@@ -75,7 +74,7 @@ func handleClient(conn net.Conn, num int) {
 			}
 
 			for i := 0; i < size; i++ {
-				go EventHandle(string(EscapeCtrl([]byte(res[i]))), num, string(data[0:c]))
+				go EventHandle(res[i], num, string(data[0:c]))
 			}
 		}
 	}()
@@ -134,26 +133,4 @@ func GetRightMsg(msg string) ([32]string, int) {
 	json[i] = msg
 
 	return json, i + 1
-}
-
-//EscapeCtrl ...
-func EscapeCtrl(ctrl []byte) (esc []byte) {
-	u := []byte(`\u0000`)
-	for i, ch := range ctrl {
-		if ch <= 31 {
-			if esc == nil {
-				esc = append(make([]byte, 0, len(ctrl)+len(u)), ctrl[:i]...)
-			}
-			esc = append(esc, u...)
-			hex.Encode(esc[len(esc)-2:], ctrl[i:i+1])
-			continue
-		}
-		if esc != nil {
-			esc = append(esc, ch)
-		}
-	}
-	if esc == nil {
-		return ctrl
-	}
-	return esc
 }

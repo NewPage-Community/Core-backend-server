@@ -6,8 +6,19 @@ import (
 )
 
 // CheckBan ...
-func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, int64, string, string) {
-	row, err := db.Query("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM `np_bans` WHERE `steamid` = ? AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC", steamid, time.Now().Unix())
+func CheckBan(steamid string, serverid int) (bool, int, int64, string, string) {
+	var modid int
+	row, err := db.Query("SELECT `mod` FROM `np_servers` WHERE `sid` = ?", serverid)
+
+	if !CheckError(err) {
+		return false, 0, 0, "", ""
+	}
+
+	row.Next()
+	row.Scan(&modid)
+	row.Close()
+
+	row, err = db.Query("SELECT `bid`, `bantype`, `sid`, `mid`, `ends`, `adminname`, `reason` FROM `np_bans` WHERE `steamid` = ? AND `bRemovedBy` = -1 AND (`ends` > ? OR `length` = 0) ORDER BY `created` DESC", steamid, time.Now().Unix())
 
 	if !CheckError(err) {
 		return false, 0, 0, "", ""
@@ -21,7 +32,7 @@ func CheckBan(steamid string, serverid int, modid int, ip string) (bool, int, in
 		row.Scan(&bid, &banType, &sid, &mid, &ends, &adminname, &reason)
 
 		if (banType == 1 && mid == modid) || (banType == 2 && sid == serverid) || banType == 0 {
-			db.Exec("INSERT INTO `np_blocks` VALUES (DEFAULT, ?, ?, ?)", bid, ip, time.Now().Unix())
+			db.Exec("INSERT INTO `np_blocks` VALUES (DEFAULT, ?, ?)", bid, time.Now().Unix())
 			row.Close()
 			return true, banType, ends, reason, adminname
 		}

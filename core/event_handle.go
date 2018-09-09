@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"log"
+	"time"
 )
 
 //PlayerInfo (send)
@@ -76,7 +77,8 @@ type UserStats struct {
 	SpecOnline  int    `json:"SpecOnline"`
 	PlayOnline  int    `json:"PlayOnline"`
 	UserName    string `json:"UserName"`
-	VIPReward   int    `json:"VIPReward"`
+	IP          string `json:"IP"`
+	Map         string `json:"Map"`
 }
 
 //BanInfo (rec)
@@ -107,6 +109,7 @@ type BanClient struct {
 
 //EventData (rec)
 type EventData struct {
+	Ev               string           `json:"E"`
 	Event            string           `json:"Event"`
 	PlayerConnection PlayerConnection `json:"PlayerConnection"`
 	AllServersChat   Chat             `json:"AllServersChat"`
@@ -114,6 +117,8 @@ type EventData struct {
 	UserStats        UserStats        `json:"UserStats"`
 	SQLSave          string           `json:"SQLSave"`
 	BanInfo          BanInfo          `json:"BanInfo"`
+	SteamID          string           `json:"S"`
+	ServerID         int              `json:"SI"`
 }
 
 //EventHandle ...
@@ -126,11 +131,11 @@ func EventHandle(msg string, serNum int, rawmsg string) {
 	}
 
 	switch {
+	case data.Ev == "E":
+		PlayerConnHandle(data, serNum)
+
 	case data.Event == "AllServersChat":
 		AllChatHandle(data, serNum)
-
-	case data.Event == "PlayerConnection":
-		PlayerConnHandle(data, serNum)
 
 	case data.Event == "SQLSave":
 		SQLSaveHandle(data, serNum)
@@ -159,10 +164,9 @@ func SQLSaveHandle(data EventData, serNum int) {
 
 //PlayerConnHandle ...
 func PlayerConnHandle(data EventData, serNum int) {
-	playerinfo := data.PlayerConnection
 	var player PlayerInfo
 
-	row, err := JoinQuery.Query(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP, playerinfo.Map, playerinfo.JoinTime, playerinfo.TodayDate)
+	row, err := JoinQuery.Query(data.SteamID, data.ServerID, time.Now().Unix(), time.Now().Format("20060102"))
 
 	if !CheckError(err) {
 		log.Println("数据", data)
@@ -173,14 +177,13 @@ func PlayerConnHandle(data EventData, serNum int) {
 	row.Scan(&player.UID, &player.Username, &player.Imm, &player.Spt, &player.Vip, &player.Ctb, &player.Opt, &player.Adm, &player.Own, &player.Tviplevel, &player.Grp, &player.OnlineTotal, &player.OnlineToday, &player.OnlineOB, &player.OnlinePlay, &player.ConnectTimes, &player.Vitality, &player.TrackingID, &player.Money, &player.SignTimes, &player.SignDate, &player.VIPPoint, &player.VIPExpired, &player.VIPReward)
 	row.Close()
 
-	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(playerinfo.SteamID, playerinfo.ServerID, playerinfo.ServerModID, playerinfo.IP)
+	player.IsBanned, player.BanType, player.BanETime, player.BanReason, player.BanAdminName = CheckBan(data.SteamID, data.ServerID)
 
 	buff := struct {
 		Event      string     `json:"Event"`
 		PlayerInfo PlayerInfo `json:"PlayerInfo"`
-		CIndex     int        `json:"CIndex"`
 		SteamID    string     `json:"SteamID"`
-	}{"PlayerInfo", player, playerinfo.CIndex, playerinfo.SteamID}
+	}{"PlayerInfo", player, data.SteamID}
 
 	json, _ := json.Marshal(buff)
 
@@ -205,7 +208,7 @@ func AllChatHandle(data EventData, serNum int) {
 
 //StatsHandle ...
 func StatsHandle(data EventData, serNum int) {
-	_, err := StatsQuery.Exec(data.UserStats.UID, data.UserStats.SessionID, data.UserStats.TodayOnline, data.UserStats.TotalOnline, data.UserStats.SpecOnline, data.UserStats.PlayOnline, data.UserStats.UserName, data.UserStats.VIPReward)
+	_, err := StatsQuery.Exec(data.UserStats.UID, data.UserStats.SessionID, data.UserStats.TodayOnline, data.UserStats.TotalOnline, data.UserStats.SpecOnline, data.UserStats.PlayOnline, data.UserStats.UserName, data.UserStats.IP, data.UserStats.Map)
 	if !CheckError(err) {
 		log.Println("数据", data)
 	}
