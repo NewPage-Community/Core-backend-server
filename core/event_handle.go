@@ -131,7 +131,7 @@ func EventHandle(msg string, serNum int, rawmsg string) {
 	}
 
 	switch {
-	case data.Ev == "E":
+	case data.Ev == "PC":
 		PlayerConnHandle(data, serNum)
 
 	case data.Event == "AllServersChat":
