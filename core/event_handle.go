@@ -119,6 +119,7 @@ type EventData struct {
 	BanInfo          BanInfo          `json:"BanInfo"`
 	SteamID          string           `json:"S"`
 	ServerID         int              `json:"SI"`
+	CIndex           int              `json:"C"`
 }
 
 //EventHandle ...
@@ -183,7 +184,8 @@ func PlayerConnHandle(data EventData, serNum int) {
 		Event      string     `json:"Event"`
 		PlayerInfo PlayerInfo `json:"PlayerInfo"`
 		SteamID    string     `json:"SteamID"`
-	}{"PlayerInfo", player, data.SteamID}
+		CIndex     int        `json:"CIndex"`
+	}{"PlayerInfo", player, data.SteamID, data.CIndex}
 
 	json, _ := json.Marshal(buff)
 
