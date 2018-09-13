@@ -53,7 +53,6 @@ func handleClient(conn net.Conn, num int) {
 
 	defer func() {
 		conn.Close()
-		log.Printf("客户端 %d 关闭连接", num)
 		delete(sersChan, num)
 	}()
 
@@ -62,7 +61,6 @@ func handleClient(conn net.Conn, num int) {
 			data := make([]byte, 4096)
 			c, err := conn.Read(data)
 			if err != nil {
-				log.Println("无法读取数据：", err)
 				closed <- true
 				return
 			}
