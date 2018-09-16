@@ -24,7 +24,7 @@ func StartTCPServer() {
 	}
 	defer listener.Close()
 
-	log.Printf("欢迎使用 NCS \n 后台服务正在运行 ...\n")
+	log.Printf("欢迎使用 NCS 系统 \n 后台服务正在运行 ...\n")
 
 	for {
 		conn, err := listener.Accept()
